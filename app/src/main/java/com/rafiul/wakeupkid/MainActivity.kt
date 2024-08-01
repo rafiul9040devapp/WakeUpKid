@@ -29,9 +29,7 @@ import com.rafiul.wakeupkid.repository.AlarmSchedulerImpl
 import com.rafiul.wakeupkid.ui.theme.WakeUpKidTheme
 import com.rafiul.wakeupkid.utils.TimePicker
 import com.rafiul.wakeupkid.utils.simpleTimeFormatPair
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,7 +131,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    private
 }
 

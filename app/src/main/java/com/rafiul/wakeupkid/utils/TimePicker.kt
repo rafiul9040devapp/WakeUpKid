@@ -5,7 +5,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun TimePicker(onTimeSelected: (Int, Int) -> Unit) {
@@ -27,4 +29,16 @@ fun TimePicker(onTimeSelected: (Int, Int) -> Unit) {
     Button(onClick = { timePickerDialog.show() }) {
         Text("Pick Time")
     }
+}
+
+fun simpleTimeFormatPair(
+    hour: Int,
+    minute: Int
+): Pair<Calendar, SimpleDateFormat> {
+    val calendar = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+    }
+    val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    return Pair(calendar, format)
 }

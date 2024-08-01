@@ -23,10 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.myapp.components.DatePicker
+import com.example.myapp.components.simpleDateFormatPair
 import com.rafiul.wakeupkid.model.AlarmItem
 import com.rafiul.wakeupkid.repository.AlarmSchedulerImpl
 import com.rafiul.wakeupkid.ui.theme.WakeUpKidTheme
 import com.rafiul.wakeupkid.utils.TimePicker
+import com.rafiul.wakeupkid.utils.simpleTimeFormatPair
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -35,9 +37,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val scheduler = AlarmSchedulerImpl(this)
-        var alarmItem: AlarmItem? = null
         setContent {
             WakeUpKidTheme {
+                var alarmItem by remember { mutableStateOf<AlarmItem?>(null) }
                 var message by remember { mutableStateOf("") }
                 var selectedDate by remember { mutableStateOf<Long?>(null) }
                 var selectedTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -58,8 +60,6 @@ class MainActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-
-
                         OutlinedTextField(
                             value = message,
                             onValueChange = { message = it },
@@ -77,18 +77,13 @@ class MainActivity : ComponentActivity() {
                         ) {
                             DatePicker { date ->
                                 selectedDate = date
-                                val calendar = Calendar.getInstance().apply { timeInMillis = date }
-                                val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                val (calendar, format) = simpleDateFormatPair(date)
                                 displayDate = format.format(calendar.time)
                             }
 
                             TimePicker { hour, minute ->
                                 selectedTime = Pair(hour, minute)
-                                val calendar = Calendar.getInstance().apply {
-                                    set(Calendar.HOUR_OF_DAY, hour)
-                                    set(Calendar.MINUTE, minute)
-                                }
-                                val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                                val (calendar, format) = simpleTimeFormatPair(hour, minute)
                                 displayTime = format.format(calendar.time)
                             }
                         }
@@ -138,5 +133,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private
 }
 

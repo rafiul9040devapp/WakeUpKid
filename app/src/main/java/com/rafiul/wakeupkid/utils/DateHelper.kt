@@ -6,7 +6,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun DatePicker(onDateSelected: (Long) -> Unit) {
@@ -31,4 +33,10 @@ fun DatePicker(onDateSelected: (Long) -> Unit) {
     ) {
         Text(text = "Pick Date")
     }
+}
+
+fun simpleDateFormatPair(date: Long): Pair<Calendar, SimpleDateFormat> {
+    val calendar = Calendar.getInstance().apply { timeInMillis = date }
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return Pair(calendar, format)
 }

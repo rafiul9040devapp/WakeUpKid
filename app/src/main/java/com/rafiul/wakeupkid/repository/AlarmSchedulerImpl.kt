@@ -19,7 +19,7 @@ class AlarmSchedulerImpl(private val context: Context) : AlarmScheduler {
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            item.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000,
+            item.alarmTime,
             PendingIntent.getBroadcast(
                 context,
                 item.hashCode(),

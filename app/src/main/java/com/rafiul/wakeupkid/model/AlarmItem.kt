@@ -1,8 +1,6 @@
 package com.rafiul.wakeupkid.model
 
-import java.time.LocalDateTime
-
 data class AlarmItem(
-    val alarmTime : LocalDateTime,
+    val alarmTime : Long,
     val message : String
 )

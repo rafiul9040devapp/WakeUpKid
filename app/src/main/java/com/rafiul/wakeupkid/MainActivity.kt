@@ -22,10 +22,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.myapp.components.DatePicker
 import com.rafiul.wakeupkid.model.AlarmItem
 import com.rafiul.wakeupkid.repository.AlarmSchedulerImpl
 import com.rafiul.wakeupkid.ui.theme.WakeUpKidTheme
-import java.time.LocalDateTime
+import com.rafiul.wakeupkid.utils.TimePicker
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,14 +38,12 @@ class MainActivity : ComponentActivity() {
         var alarmItem: AlarmItem? = null
         setContent {
             WakeUpKidTheme {
-
-                var secondText by remember {
-                    mutableStateOf("")
-                }
-
-                var message by remember {
-                    mutableStateOf("")
-                }
+                var message by remember { mutableStateOf("") }
+                var selectedDate by remember { mutableStateOf<Long?>(null) }
+                var selectedTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+                var displayDate by remember { mutableStateOf("") }
+                var displayTime by remember { mutableStateOf("") }
+                var visibility by remember { mutableStateOf(true) }
 
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
@@ -50,16 +52,13 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        OutlinedTextField(
-                            value = secondText,
-                            onValueChange = { secondText = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = {
-                                Text(text = "Trigger Alarm in seconds")
-                            },
-                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        if (selectedDate != null && selectedTime != null && visibility){
+                            Text(text = "Do you want to set Alarm: \n $displayDate At $displayTime")
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+
 
                         OutlinedTextField(
                             value = message,
@@ -71,6 +70,30 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            DatePicker { date ->
+                                selectedDate = date
+                                val calendar = Calendar.getInstance().apply { timeInMillis = date }
+                                val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                displayDate = format.format(calendar.time)
+                            }
+
+                            TimePicker { hour, minute ->
+                                selectedTime = Pair(hour, minute)
+                                val calendar = Calendar.getInstance().apply {
+                                    set(Calendar.HOUR_OF_DAY, hour)
+                                    set(Calendar.MINUTE, minute)
+                                }
+                                val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                                displayTime = format.format(calendar.time)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -79,21 +102,32 @@ class MainActivity : ComponentActivity() {
                         ) {
 
                             Button(onClick = {
-                                alarmItem = AlarmItem(
-                                    alarmTime = LocalDateTime.now()
-                                        .plusSeconds(secondText.toLong()),
-                                    message = message
-                                )
+                                selectedDate?.let { date ->
+                                    selectedTime?.let { (hour, minute) ->
+                                        val calendar = Calendar.getInstance().apply {
+                                            timeInMillis = date
+                                            set(Calendar.HOUR_OF_DAY, hour)
+                                            set(Calendar.MINUTE, minute)
+                                            set(Calendar.SECOND, 0)
+                                        }
+                                        alarmItem = AlarmItem(
+                                            alarmTime = calendar.timeInMillis,
+                                            message = message
+                                        )
+                                    }
+                                }
                                 alarmItem?.let(scheduler::scheduleAlarm)
-                                secondText= ""
                                 message = ""
-                            }) {
+                                visibility = false
+                                selectedDate = null
+                                selectedTime =null
+                            },
+                                enabled = selectedDate != null && selectedTime != null) {
                                 Text(text = "Schedule")
                             }
 
-                            Button(onClick = {
-                                alarmItem?.let(scheduler::cancelAlarm)
-                            }) {
+                            Button(onClick = { alarmItem?.let(scheduler::cancelAlarm) },
+                                enabled = selectedDate != null && selectedTime != null) {
                                 Text(text = "Cancel")
                             }
 
